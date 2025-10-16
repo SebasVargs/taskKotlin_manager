@@ -1,4 +1,7 @@
 package com.example.task_manager
 
-class TaskManagerTheme {
-}
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
+
+@HiltAndroidApp
+class TaskManagerTheme: Application()
