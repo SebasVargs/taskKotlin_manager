@@ -1,4 +1,4 @@
 package com.example.task_manager
 
-class TaskManagerApp {
+class MainActivityViewModel {
 }

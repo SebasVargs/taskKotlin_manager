@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -78,7 +79,6 @@ private fun HomeTopBar(
             )
         },
         actions = {
-            // Botón de menú (tres puntos)
             IconButton(onClick = onMenuToggle) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,

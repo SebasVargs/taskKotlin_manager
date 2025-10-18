@@ -10,7 +10,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-// Color Scheme Light (Claro)
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryColor,
     onPrimary = OnPrimaryColor,
@@ -43,7 +42,6 @@ private val LightColorScheme = lightColorScheme(
     scrim = ScrimColor
 )
 
-// Color Scheme Dark (Oscuro)
 private val DarkColorScheme = darkColorScheme(
     primary = DarkPrimaryColor,
     onPrimary = PrimaryColor,
@@ -78,11 +76,17 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun TaskManagerTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
+    themeMode: Int = 0,
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    val darkTheme = when (themeMode) {
+        0 -> isSystemInDarkTheme()
+        1 -> false
+        2 -> true
+        else -> isSystemInDarkTheme()
+    }
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
