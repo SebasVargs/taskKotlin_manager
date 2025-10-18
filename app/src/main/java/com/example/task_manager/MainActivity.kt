@@ -4,13 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.task_manager.ui.onboarding.OnboardingScreen
-import com.example.task_manager.ui.screens.home.HomeScreen
-import com.example.task_manager.ui.screens.settings.SettingsScreen
-import com.example.task_manager.ui.screens.task_detail.TaskDetailScreen
+import com.example.task_manager.ui.navigation.Routes
+import com.example.task_manager.ui.navigation.homeGraph
+import com.example.task_manager.ui.navigation.onboardingGraph
+import com.example.task_manager.ui.navigation.settingsGraph
 import com.example.task_manager.ui.theme.TaskManagerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,47 +21,38 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
-            TaskManagerTheme {
-                val navController = rememberNavController()
+            val navController = rememberNavController()
+            val viewModel: MainActivityViewModel = hiltViewModel()
 
-                NavHost(navController = navController, startDestination = "onboarding") {
-                    composable("onboarding") {
-                        OnboardingScreen(
-                            onOnboardingComplete = {
-                                navController.navigate("home") {
-                                    popUpTo("onboarding") { inclusive = true }
-                                }
+            val hasCompletedOnboarding by viewModel.hasCompletedOnboarding.collectAsState()
+            val themeMode by viewModel.themeMode.collectAsState()
+
+            val startDestination = if (hasCompletedOnboarding) {
+                Routes.HOME_SCREEN
+            } else {
+                Routes.ONBOARDING_SCREEN
+            }
+
+            TaskManagerTheme(themeMode = themeMode) {
+                NavHost(
+                    navController = navController,
+                    startDestination = startDestination
+                ) {
+                    onboardingGraph(
+                        onOnboardingComplete = {
+                            viewModel.completeOnboarding()
+                            navController.navigate(Routes.HOME_SCREEN) {
+                                popUpTo(Routes.ONBOARDING_SCREEN) { inclusive = true }
                             }
-                        )
-                    }
+                        }
+                    )
 
-                    composable("home") {
-                        HomeScreen(
-                            onNavigateToSettings = {
-                                navController.navigate("settings")
-                            },
-                            onNavigateToTaskDetail = { taskId ->
-                                navController.navigate("taskDetail/$taskId")
-                            }
-                        )
-                    }
-                    composable("settings") {
-                        SettingsScreen(
-                            onBackClick = { navController.popBackStack() }
-                        )
-                    }
-
-                    composable("taskDetail/{taskId}") { backStackEntry ->
-                        val taskId = backStackEntry.arguments?.getString("taskId") ?: "new"
-                        TaskDetailScreen(
-                            taskId = taskId,
-                            onBackClick = { navController.popBackStack() }
-                        )
-                    }
+                    homeGraph(navController)
+                    settingsGraph(navController)
                 }
             }
         }
-
     }
 }
